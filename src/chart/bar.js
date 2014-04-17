@@ -5,7 +5,7 @@
  * @author Kener (@Kener-林峰, linzhifeng@baidu.com)
  *
  */
-define(function(require) {
+define(function (require) {
     /**
      * 构造函数
      * @param {Object} messageCenter echart消息中心
@@ -13,7 +13,7 @@ define(function(require) {
      * @param {Object} series 数据
      * @param {Object} component 组件
      */
-    function Bar(ecConfig, messageCenter, zr, option, component){
+    function Bar(ecConfig, messageCenter, zr, option, component) {
         // 基类装饰
         var ComponentBase = require('../component/base');
         ComponentBase.call(this, ecConfig, zr);
@@ -22,7 +22,7 @@ define(function(require) {
         CalculableBase.call(this, zr, option);
 
         var ecData = require('../util/ecData');
-        
+
         var zrColor = require('zrender/tool/color');
 
         var self = this;
@@ -30,7 +30,7 @@ define(function(require) {
 
         var series;                 // 共享数据源，不要修改跟自己无关的项
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var _sIndex2colorMap = {};  // series默认颜色索引，seriesIndex索引到color
 
@@ -39,10 +39,10 @@ define(function(require) {
 
             // 水平垂直双向series索引 ，position索引到seriesIndex
             var _position2sIndexMap = {
-                top : [],
-                bottom : [],
-                left : [],
-                right : []
+                top: [],
+                bottom: [],
+                left: [],
+                right: []
             };
             var xAxisIndex;
             var yAxisIndex;
@@ -95,12 +95,12 @@ define(function(require) {
             }
 
             switch (position) {
-                case 'bottom' :
-                case 'top' :
+                case 'bottom':
+                case 'top':
                     _buildHorizontal(maxDataLength, locationMap, seriesArray);
                     break;
-                case 'left' :
-                case 'right' :
+                case 'left':
+                case 'right':
                     _buildVertical(maxDataLength, locationMap, seriesArray);
                     break;
             }
@@ -126,11 +126,11 @@ define(function(require) {
             for (var i = 0, l = seriesArray.length; i < l; i++) {
                 serie = series[seriesArray[i]];
                 serieName = serie.name;
-                if (legend){
+                if (legend) {
                     self.selectedMap[serieName] = legend.isSelected(serieName);
                     _sIndex2colorMap[seriesArray[i]] =
                         legend.getColor(serieName);
-                    
+
                     iconShape = legend.getItemShape(serieName);
                     if (iconShape) {
                         // 回调legend，换一个更形象的icon
@@ -139,7 +139,7 @@ define(function(require) {
                             iconShape.style.y += 1;
                             iconShape.style.width -= 2;
                             iconShape.style.height -= 2;
-                            iconShape.style.strokeColor = 
+                            iconShape.style.strokeColor =
                             iconShape.highlightStyle.strokeColor =
                                 serie.itemStyle.normal.borderColor;
                             iconShape.highlightStyle.lineWidth = 3;
@@ -189,8 +189,8 @@ define(function(require) {
             */
 
             return {
-                locationMap : locationMap,
-                maxDataLength : maxDataLength
+                locationMap: locationMap,
+                maxDataLength: maxDataLength
             };
         }
 
@@ -244,14 +244,6 @@ define(function(require) {
                                   ? data.value
                                   : data)
                                 : '-';
-                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex] 
-                                                || {
-                                                    min : Number.POSITIVE_INFINITY,
-                                                    max : Number.NEGATIVE_INFINITY,
-                                                    sum : 0,
-                                                    counter : 0,
-                                                    average : 0
-                                                };
                         if (value == '-') {
                             // 空数据在做完后补充拖拽提示框
                             continue;
@@ -260,7 +252,7 @@ define(function(require) {
                         if (value > 0) {
                             // 正向堆叠
                             //barHeight = baseYP - y;
-                            barHeight = m > 0 
+                            barHeight = m > 0
                                         ? valueAxis.getCoordSize(value)
                                         : (baseYP - valueAxis.getCoord(value));
                             // 非堆叠数据最小高度有效
@@ -272,10 +264,10 @@ define(function(require) {
                             lastYP -= barHeight;
                             y = lastYP;
                         }
-                        else if (value < 0){
+                        else if (value < 0) {
                             // 负向堆叠
                             //barHeight = y - baseYN;
-                            barHeight = m > 0 
+                            barHeight = m > 0
                                         ? valueAxis.getCoordSize(value)
                                         : (valueAxis.getCoord(value) - baseYN);
                             // 非堆叠数据最小高度有效
@@ -303,8 +295,16 @@ define(function(require) {
                             barHeight,
                             'vertical'
                         );
-                        
-                        xMarkMap[seriesIndex][i] = 
+
+                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex]
+                                                || {
+                                                    min: Number.POSITIVE_INFINITY,
+                                                    max: Number.NEGATIVE_INFINITY,
+                                                    sum: 0,
+                                                    counter: 0,
+                                                    average: 0
+                                                };
+                        xMarkMap[seriesIndex][i] =
                             x + (barWidthMap[seriesIndex] || barWidth) / 2;
                         if (xMarkMap[seriesIndex].min > value) {
                             xMarkMap[seriesIndex].min = value;
@@ -366,19 +366,16 @@ define(function(require) {
                     x += ((barWidthMap[seriesIndex] || barWidth) + barGap);
                 }
             }
-            
+
             for (var j = 0, k = locationMap.length; j < k; j++) {
                 for (var m = 0, n = locationMap[j].length; m < n; m++) {
                     seriesIndex = locationMap[j][m];
-                    if (xMarkMap[seriesIndex].counter > 0) {
-                        xMarkMap[seriesIndex].average = 
-                            (xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter).toFixed(2) 
-                            - 0;
-                    }
-                    
+                    xMarkMap[seriesIndex].average =
+                        (xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter).toFixed(2) - 0;
+
                     y = component.yAxis.getAxis(series[seriesIndex].yAxisIndex || 0)
                         .getCoord(xMarkMap[seriesIndex].average);
-                        
+
                     xMarkMap[seriesIndex].averageLine = [
                         [component.grid.getX(), y],
                         [component.grid.getXend(), y]
@@ -393,7 +390,7 @@ define(function(require) {
                     ];
                 }
             }
-                        
+
             _buildMark(seriesArray, xMarkMap, true);
         }
 
@@ -447,14 +444,6 @@ define(function(require) {
                                   ? data.value
                                   : data)
                                 : '-';
-                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex] 
-                                                || {
-                                                    min : Number.POSITIVE_INFINITY,
-                                                    max : Number.NEGATIVE_INFINITY,
-                                                    sum : 0,
-                                                    counter : 0,
-                                                    average : 0
-                                                };
                         if (value == '-') {
                             // 空数据在做完后补充拖拽提示框
                             continue;
@@ -463,7 +452,7 @@ define(function(require) {
                         if (value > 0) {
                             // 正向堆叠
                             //barHeight = x - baseXP;
-                            barHeight = m > 0 
+                            barHeight = m > 0
                                         ? valueAxis.getCoordSize(value)
                                         : (valueAxis.getCoord(value) - baseXP);
                             // 非堆叠数据最小高度有效
@@ -475,10 +464,10 @@ define(function(require) {
                             x = lastXP;
                             lastXP += barHeight;
                         }
-                        else if (value < 0){
+                        else if (value < 0) {
                             // 负向堆叠
                             //barHeight = baseXN - x;
-                            barHeight = m > 0 
+                            barHeight = m > 0
                                         ? valueAxis.getCoordSize(value)
                                         : (baseXN - valueAxis.getCoord(value));
                             // 非堆叠数据最小高度有效
@@ -506,8 +495,16 @@ define(function(require) {
                             barWidthMap[seriesIndex] || barWidth,
                             'horizontal'
                         );
-                        
-                        xMarkMap[seriesIndex][i] = 
+
+                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex]
+                                                || {
+                                                    min: Number.POSITIVE_INFINITY,
+                                                    max: Number.NEGATIVE_INFINITY,
+                                                    sum: 0,
+                                                    counter: 0,
+                                                    average: 0
+                                                };
+                        xMarkMap[seriesIndex][i] =
                             y - (barWidthMap[seriesIndex] || barWidth) / 2;
                         if (xMarkMap[seriesIndex].min > value) {
                             xMarkMap[seriesIndex].min = value;
@@ -570,19 +567,16 @@ define(function(require) {
                     y -= ((barWidthMap[seriesIndex] || barWidth) + barGap);
                 }
             }
-            
+
             for (var j = 0, k = locationMap.length; j < k; j++) {
                 for (var m = 0, n = locationMap[j].length; m < n; m++) {
                     seriesIndex = locationMap[j][m];
-                    if (xMarkMap[seriesIndex].counter > 0) {
-                        xMarkMap[seriesIndex].average = 
-                            (xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter).toFixed(2)
-                            - 0;
-                    }
-                    
+                    xMarkMap[seriesIndex].average =
+                        xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter;
+
                     x = component.xAxis.getAxis(series[seriesIndex].xAxisIndex || 0)
                         .getCoord(xMarkMap[seriesIndex].average);
-                        
+
                     xMarkMap[seriesIndex].averageLine = [
                         [x, component.grid.getYend()],
                         [x, component.grid.getY()]
@@ -597,10 +591,10 @@ define(function(require) {
                     ];
                 }
             }
-            
+
             _buildMark(seriesArray, xMarkMap, false);
         }
-        
+
         /**
          * 我真是自找麻烦啊，为啥要允许系列级个性化最小宽度和高度啊！！！
          * @param {CategoryAxis} categoryAxis 类目坐标轴，需要知道类目间隔大小
@@ -649,13 +643,13 @@ define(function(require) {
                         queryTarget,
                         'barMinHeight'
                     );
-                    barGap = typeof barGap != 'undefined' 
+                    barGap = typeof barGap != 'undefined'
                              ? barGap
                              : self.query(
                                    queryTarget,
                                    'barGap'
                                );
-                    barCategoryGap = typeof barCategoryGap != 'undefined' 
+                    barCategoryGap = typeof barCategoryGap != 'undefined'
                                      ? barCategoryGap
                                      : self.query(
                                            queryTarget,
@@ -669,12 +663,12 @@ define(function(require) {
             if (locationMap.length != sBarWidthCounter) {
                 // 至少存在一个自适应宽度的柱形图
                 if (!ignoreUserDefined) {
-                    gap = typeof barCategoryGap == 'string' 
+                    gap = typeof barCategoryGap == 'string'
                           && barCategoryGap.match(/%$/)
                               // 百分比
                               ? Math.floor(
-                                  categoryAxis.getGap() 
-                                  * (100 - parseFloat(barCategoryGap)) 
+                                  categoryAxis.getGap()
+                                  * (100 - parseFloat(barCategoryGap))
                                   / 100
                                 )
                               // 数值
@@ -683,7 +677,7 @@ define(function(require) {
                         barGap = parseFloat(barGap) / 100;
                         barWidth = Math.floor(
                             (gap - sBarWidthTotal)
-                            / ((locationMap.length - 1) * barGap 
+                            / ((locationMap.length - 1) * barGap
                                + locationMap.length - sBarWidthCounter)
                         );
                         barGap = Math.floor(barWidth * barGap);
@@ -691,14 +685,14 @@ define(function(require) {
                     else {
                         barGap = parseFloat(barGap);
                         barWidth = Math.floor(
-                            (gap - sBarWidthTotal 
+                            (gap - sBarWidthTotal
                                  - barGap * (locationMap.length - 1)
                             )
                             / (locationMap.length - sBarWidthCounter)
                         );
                     }
                     // 无法满足用户定义的宽度设计，忽略用户宽度，打回重做
-                    if (barWidth <= 0) {
+                    if (barWidth < 0) {
                         return _mapSize(categoryAxis, locationMap, true);
                     }
                 }
@@ -708,7 +702,7 @@ define(function(require) {
                     barGap = 0;
                     barWidth = Math.floor(gap / locationMap.length);
                     // 已经忽略用户定义的宽度设定依然还无法满足显示，只能硬来了;
-                    if (barWidth <= 0) {
+                    if (barWidth < 0) {
                         barWidth = 1;
                     }
                 }
@@ -716,13 +710,13 @@ define(function(require) {
             else {
                 // 全是自定义宽度，barGap无效，系列间隔决定barGap
                 gap = sBarWidthCounter > 1
-                      ? (typeof barCategoryGap == 'string' 
+                      ? (typeof barCategoryGap == 'string'
                          && barCategoryGap.match(/%$/)
                         )
                           // 百分比
                           ? Math.floor(
-                              categoryAxis.getGap() 
-                              * (100 - parseFloat(barCategoryGap)) 
+                              categoryAxis.getGap()
+                              * (100 - parseFloat(barCategoryGap))
                               / 100
                             )
                           // 数值
@@ -730,7 +724,7 @@ define(function(require) {
                       // 只有一个
                       : sBarWidthTotal;
                 barWidth = 0;
-                barGap = sBarWidthCounter > 1 
+                barGap = sBarWidthCounter > 1
                          ? Math.floor(
                                (gap - sBarWidthTotal) / (sBarWidthCounter - 1)
                            )
@@ -742,11 +736,11 @@ define(function(require) {
             }
 
             return {
-                barWidthMap : barWidthMap,
-                barMinHeightMap : barMinHeightMap ,
-                gap : gap,
-                barWidth : barWidth,
-                barGap : barGap
+                barWidthMap: barWidthMap,
+                barMinHeightMap: barMinHeightMap,
+                gap: gap,
+                barWidth: barWidth,
+                barGap: barGap
             };
         }
 
@@ -779,28 +773,29 @@ define(function(require) {
                 queryTarget,
                 'itemStyle.emphasis'
             );
+            _zlevelCurrent = serie.zindex || _zlevelBase;
             barShape = {
-                shape : 'rectangle',
-                zlevel : _zlevelBase,
+                shape: 'rectangle',
+                zlevel: _zlevelCurrent,
                 clickable: true,
-                style : {
-                    x : x,
-                    y : y,
-                    width : width,
-                    height : height,
-                    brushType : 'both',
-                    color : self.getItemStyleColor(normalColor, seriesIndex, dataIndex, data),
-                    radius : normal.borderRadius,
-                    lineWidth : normalBorderWidth,
-                    strokeColor : normal.borderColor
+                style: {
+                    x: x,
+                    y: y,
+                    width: width,
+                    height: height,
+                    brushType: 'both',
+                    color: self.getItemStyleColor(normalColor, seriesIndex, dataIndex, data),
+                    radius: normal.borderRadius,
+                    lineWidth: normalBorderWidth,
+                    strokeColor: normal.borderColor
                 },
-                highlightStyle : {
-                    color : self.getItemStyleColor(emphasisColor, seriesIndex, dataIndex, data),
-                    radius : emphasis.borderRadius,
-                    lineWidth : emphasis.borderWidth,
-                    strokeColor : emphasis.borderColor
+                highlightStyle: {
+                    color: self.getItemStyleColor(emphasisColor, seriesIndex, dataIndex, data),
+                    radius: emphasis.borderRadius,
+                    lineWidth: emphasis.borderWidth,
+                    strokeColor: emphasis.borderColor
                 },
-                _orient : orient
+                _orient: orient
             };
             barShape.highlightStyle.color = barShape.highlightStyle.color
                             || (typeof barShape.style.color == 'string'
@@ -821,12 +816,12 @@ define(function(require) {
                 // 太小了或者线宽小于0，废了边线
                 barShape.style.brushType = 'fill';
             }
-            
+
             barShape.highlightStyle.textColor = barShape.highlightStyle.color;
-            
+
             barShape = self.addLabel(barShape, serie, data, name, orient);
 
-            if (self.deepQuery([data, serie, option],'calculable')) {
+            if (self.deepQuery([data, serie, option], 'calculable')) {
                 self.setCalculable(barShape);
                 barShape.draggable = true;
             }
@@ -842,20 +837,20 @@ define(function(require) {
         }
 
         // 添加标注
-        function _buildMark(seriesArray, xMarkMap ,isHorizontal) {
+        function _buildMark(seriesArray, xMarkMap, isHorizontal) {
             for (var i = 0, l = seriesArray.length; i < l; i++) {
                 self.buildMark(
                     series[seriesArray[i]],
                     seriesArray[i],
                     component,
                     {
-                        isHorizontal : isHorizontal,
-                        xMarkMap : xMarkMap
+                        isHorizontal: isHorizontal,
+                        xMarkMap: xMarkMap
                     }
                 );
             }
         }
-        
+
         // 位置转换
         function getMarkCoord(serie, seriesIndex, mpData, markCoordParams) {
             var xAxis = component.xAxis.getAxis(serie.xAxisIndex);
@@ -897,7 +892,7 @@ define(function(require) {
             }
             return pos;
         }
-        
+
         /**
          * 构造函数默认执行的初始化方法，也用于创建实例后动态修改
          * @param {Object} newSeries
@@ -919,7 +914,7 @@ define(function(require) {
             self.clear();
             _buildShape();
         }
-        
+
         /**
          * 动态数据增加动画 
          */
@@ -943,7 +938,7 @@ define(function(require) {
                         // 主动画
                         dataIndex = ecData.get(self.shapeList[i], 'dataIndex');
                         serie = series[seriesIndex];
-                        if (aniMap[seriesIndex][2] 
+                        if (aniMap[seriesIndex][2]
                             && dataIndex == serie.data.length - 1
                         ) {
                             // 队头加入删除末尾
@@ -974,7 +969,7 @@ define(function(require) {
                         zr.animate(self.shapeList[i].id, '')
                             .when(
                                 500,
-                                {position : [x, y]}
+                                { position: [x, y] }
                             )
                             .start();
                     }
@@ -1016,7 +1011,7 @@ define(function(require) {
                                 self.shapeList[i].id,
                                 {
                                     style: {
-                                        x : x + width,
+                                        x: x + width,
                                         width: 0
                                     }
                                 },
@@ -1026,8 +1021,8 @@ define(function(require) {
                                 .when(
                                     duration + dataIndex * 100,
                                     {
-                                        x : x,
-                                        width : width
+                                        x: x,
+                                        width: width
                                     }
                                 )
                                 .start(easing);
@@ -1046,7 +1041,7 @@ define(function(require) {
                                 .when(
                                     duration + dataIndex * 100,
                                     {
-                                        width : width
+                                        width: width
                                     }
                                 )
                                 .start(easing);
@@ -1070,7 +1065,7 @@ define(function(require) {
                                 .when(
                                     duration + dataIndex * 100,
                                     {
-                                        height : height
+                                        height: height
                                     }
                                 )
                                 .start(easing);
@@ -1090,8 +1085,8 @@ define(function(require) {
                                 .when(
                                     duration + dataIndex * 100,
                                     {
-                                        y : y,
-                                        height : height
+                                        y: y,
+                                        height: height
                                     }
                                 )
                                 .start(easing);
@@ -1099,14 +1094,14 @@ define(function(require) {
                     }
                 }
             }
-            
+
             self.animationMark(duration, easing);
         }
 
         // 重载基类方法
         self.getMarkCoord = getMarkCoord;
         self.animation = animation;
-        
+
         self.init = init;
         self.refresh = refresh;
         self.addDataAnimation = addDataAnimation;
@@ -1116,6 +1111,6 @@ define(function(require) {
 
     // 图表注册
     require('../chart').define('bar', Bar);
-    
+
     return Bar;
 });

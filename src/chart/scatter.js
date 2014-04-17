@@ -28,7 +28,7 @@ define(function(require) {
 
         var series;                 // 共享数据源，不要修改跟自己无关的项
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
         
         var _sIndex2ColorMap = {};  // series默认颜色索引，seriesIndex索引到color
         var _symbol = ecConfig.symbolList;
@@ -46,8 +46,10 @@ define(function(require) {
             for (var i = 0, l = series.length; i < l; i++) {
                 serie = series[i];
                 serieName = serie.name;
+
                 if (serie.type == ecConfig.CHART_TYPE_SCATTER) {
                     series[i] = self.reformOption(series[i]);
+                    _zlevelCurrent = series[i].zindex || _zlevelBase;
                     _sIndex2ShapeMap[i] = self.query(serie, 'symbol')
                                           || _symbol[i % _symbol.length];
                     if (legend){
@@ -364,7 +366,7 @@ define(function(require) {
                 'rgba(0,0,0,0)',
                 'vertical'
             );
-            itemShape.zlevel = _zlevelBase;
+            itemShape.zlevel = _zlevelCurrent;
             itemShape._mark = false; // 非mark
             itemShape._main = true;
             return itemShape;
@@ -373,7 +375,7 @@ define(function(require) {
         function _getLargeSymbol(pointList, nColor) {
             return {
                 shape : 'symbol',
-                zlevel : _zlevelBase,
+                zlevel: _zlevelCurrent,
                 _main : true,
                 hoverable: false,
                 style : {

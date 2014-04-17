@@ -32,7 +32,7 @@
         var series;                 // 共享数据源，不要修改跟自己无关的项
         var serie;
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var _queryTarget;
 
@@ -53,6 +53,7 @@
             for (var i = 0, l = series.length; i < l ; i ++) {
                 if (series[i].type == ecConfig.CHART_TYPE_RADAR) {
                     serie = self.reformOption(series[i]);
+                    _zlevelCurrent = serie.zindex || _zlevelBase;
                     serieName = serie.name || '';
                     // 系列图例开关
                     self.selectedMap[serieName] = 
@@ -176,7 +177,7 @@
                     '#fff',
                     'vertical'
                 );
-                itemShape.zlevel = _zlevelBase + 1;
+                itemShape.zlevel = _zlevelCurrent + 1;
                 self.shapeList.push(itemShape);
             }
         }
@@ -218,7 +219,7 @@
             );
             var shape = {
                 shape : 'polygon',
-                zlevel : _zlevelBase,
+                zlevel: _zlevelCurrent,
                 style : {
                     pointList   : pointList,
                     brushType   : nIsAreaFill ? 'both' : 'stroke',
@@ -288,7 +289,7 @@
             );
             if (!_dropBoxList[polarIndex]) {
                 var shape = component.polar.getDropBox(polarIndex);
-                shape.zlevel = _zlevelBase;
+                shape.zlevel = _zlevelCurrent;
                 self.setCalculable(shape);
                 ecData.pack(shape, series, index, undefined, -1);
                 self.shapeList.push(shape);

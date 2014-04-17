@@ -36,6 +36,7 @@ define(function(require) {
         /**
          * 获取zlevel基数配置
          * @param {Object} contentType
+         * 默认情况下，都会这个地方来获取对应组件的zlevel值
          */
         function getZlevelBase(contentType) {
             contentType = contentType || self.type + '';
@@ -403,8 +404,7 @@ define(function(require) {
                 }
                 
                 // 标准化一些参数
-                data[i].tooltip = data[i].tooltip 
-                                  || {trigger:'item'}; // tooltip.trigger指定为item
+                data[i].tooltip = {trigger:'item'}; // tooltip.trigger指定为item
                 data[i].name = typeof data[i].name != 'undefined'
                                ? data[i].name : '';
                 data[i].value = typeof data[i].value != 'undefined'

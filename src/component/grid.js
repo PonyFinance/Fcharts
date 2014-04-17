@@ -23,7 +23,7 @@ define(function (require) {
         var self = this;
         self.type = ecConfig.COMPONENT_TYPE_GRID;
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var _x;
         var _y;
@@ -43,6 +43,7 @@ define(function (require) {
             option.grid = self.reformOption(option.grid);
 
             var gridOption = option.grid;
+            _zlevelCurrent = gridOption.zindex || _zlevelBase;
             _zrWidth = zr.getWidth();
             _zrHeight = zr.getHeight();
             _x = self.parsePercent(gridOption.x, _zrWidth);
@@ -71,7 +72,7 @@ define(function (require) {
             self.shapeList.push({
                 shape : 'rectangle',
                 id : zr.newShapeId('grid'),
-                zlevel : _zlevelBase,
+                zlevel: _zlevelCurrent,
                 hoverable : false,
                 style : {
                     x : _x,
@@ -85,6 +86,7 @@ define(function (require) {
                     // type : option.splitArea.areaStyle.type,
                 }
             });
+            window.grids = self.shapeList;
             zr.addShape(self.shapeList[0]);
         }
 

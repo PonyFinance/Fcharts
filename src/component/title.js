@@ -23,7 +23,7 @@ define(function (require) {
         self.type = ecConfig.COMPONENT_TYPE_TITLE;
 
         var titleOption;                       // 标题选项，共享数据源
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var _itemGroupLocation = {};    // 标题元素组的位置参数，通过计算所得x, y, width, height
 
@@ -57,7 +57,7 @@ define(function (require) {
             
             var textShape = {
                 shape : 'text',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 style : {
                     y : y,
                     color : titleOption.textStyle.color,
@@ -80,7 +80,7 @@ define(function (require) {
             
             var subtextShape = {
                 shape : 'text',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 style : {
                     y : y + height,
                     color : titleOption.subtextStyle.color,
@@ -143,7 +143,7 @@ define(function (require) {
 
             self.shapeList.push({
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 hoverable :false,
                 style : {
                     x : _itemGroupLocation.x - pLeft,
@@ -247,6 +247,7 @@ define(function (require) {
                 );
     
                 titleOption = option.title;
+                _zlevelCurrent = titleOption.zindex || _zlevelBase;
                 titleOption.textStyle = zrUtil.merge(
                     titleOption.textStyle,
                     ecConfig.textStyle,

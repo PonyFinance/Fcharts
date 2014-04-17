@@ -23,7 +23,7 @@ define(function (require) {
         self.type = ecConfig.COMPONENT_TYPE_DATARANGE;
 
         var dataRangeOption;                       // 值域选项，共享数据源
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var _itemGroupLocation = {};    // 值域元素组的位置参数，通过计算所得x, y, width, height
         var _calculableLocation;        // 可计算元素的位置缓存
@@ -131,7 +131,7 @@ define(function (require) {
                     // 文字
                     textShape = {
                         shape : 'text',
-                        zlevel : _zlevelBase,
+                        zlevel : _zlevelCurrent,
                         style : {
                             x : lastX + itemWidth + 5,
                             y : lastY,
@@ -240,7 +240,7 @@ define(function (require) {
             if (dataRangeOption.orient == 'horizontal') {
                 itemShape = {
                     shape : 'rectangle',
-                    zlevel : _zlevelBase,
+                    zlevel : _zlevelCurrent,
                     style : {
                         x : lastX,
                         y : lastY,
@@ -258,7 +258,7 @@ define(function (require) {
             else {
                 itemShape = {
                     shape : 'rectangle',
-                    zlevel : _zlevelBase,
+                    zlevel : _zlevelCurrent,
                     style : {
                         x : lastX,
                         y : lastY,
@@ -297,7 +297,7 @@ define(function (require) {
         function _buildFiller() {
             _fillerShae = {
                 shape : 'rectangle',
-                zlevel : _zlevelBase + 1,
+                zlevel : _zlevelCurrent + 1,
                 style : {
                     x : _calculableLocation.x,
                     y : _calculableLocation.y,
@@ -542,7 +542,7 @@ define(function (require) {
             };
             
             // 统一参数
-            _startShape.zlevel              = _endShape.zlevel              = _zlevelBase + 1;
+            _startShape.zlevel              = _endShape.zlevel              = _zlevelCurrent + 1;
             _startShape.draggable           = _endShape.draggable           = true;
             _startShape.ondrift             = _endShape.ondrift             = _ondrift;
             _startShape.ondragend           = _endShape.ondragend           = _ondragend;
@@ -567,7 +567,7 @@ define(function (require) {
             var height = _calculableLocation.height;
             _startMask = {
                 shape : 'rectangle',
-                zlevel : _zlevelBase + 1,
+                zlevel : _zlevelCurrent + 1,
                 style : {
                     x : x,
                     y : y,
@@ -581,7 +581,7 @@ define(function (require) {
             };
             _endMask = {
                 shape : 'rectangle',
-                zlevel : _zlevelBase + 1,
+                zlevel : _zlevelCurrent + 1,
                 style : {
                     x : dataRangeOption.orient == 'horizontal'
                         ? x + width : x,
@@ -607,7 +607,7 @@ define(function (require) {
 
             self.shapeList.push({
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 hoverable :false,
                 style : {
                     x : _itemGroupLocation.x - pLeft,
@@ -814,7 +814,7 @@ define(function (require) {
         function _getTextShape(x, y, text) {
             return {
                 shape : 'text',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 style : {
                     x : (dataRangeOption.orient == 'horizontal'
                         ? x
@@ -842,7 +842,7 @@ define(function (require) {
         function _getItemShape(x, y, width, height, color) {
             return {
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 style : {
                     x : x,
                     y : y + 1,
@@ -1167,6 +1167,7 @@ define(function (require) {
             );
 
             dataRangeOption = option.dataRange;
+            _zlevelCurrent = dataRangeOption.zindex || _zlevelBase;
 
             self.clear();
 
@@ -1245,6 +1246,7 @@ define(function (require) {
                 );
             }
             dataRangeOption = option.dataRange;
+            _zlevelCurrent = dataRangeOption.zindex || _zlevelBase;
             // 做一个反转
             dataRangeOption.range = {
                 start: _range.end,

@@ -5,7 +5,7 @@
  * @author Kener (@Kener-林峰, linzhifeng@baidu.com)
  *
  */
-define(function(require) {
+define(function (require) {
     /**
      * 构造函数
      * @param {Object} messageCenter echart消息中心
@@ -13,7 +13,7 @@ define(function(require) {
      * @param {Object} series 数据
      * @param {Object} component 组件
      */
-    function Pie(ecConfig, messageCenter, zr, option, component){
+    function Pie(ecConfig, messageCenter, zr, option, component) {
         // 基类装饰
         var ComponentBase = require('../component/base');
         ComponentBase.call(this, ecConfig, zr);
@@ -32,8 +32,8 @@ define(function(require) {
 
         var series;                 // 共享数据源，不要修改跟自己无关的项
 
-        var _zlevelBase = self.getZlevelBase();
-        
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
+
         var _selectedMode;
         var _selected = {};
 
@@ -50,32 +50,33 @@ define(function(require) {
             for (var i = 0, l = series.length; i < l; i++) {
                 if (series[i].type == ecConfig.CHART_TYPE_PIE) {
                     series[i] = self.reformOption(series[i]);
+                    _zlevelCurrent = series[i].zindex || _zlevelBase;
                     serieName = series[i].name || '';
                     // 系列图例开关
-                    self.selectedMap[serieName] = 
+                    self.selectedMap[serieName] =
                         legend ? legend.isSelected(serieName) : true;
                     if (!self.selectedMap[serieName]) {
                         continue;
                     }
-                    
+
                     center = self.parseCenter(zr, series[i].center);
                     radius = self.parseRadius(zr, series[i].radius);
                     _selectedMode = _selectedMode || series[i].selectedMode;
                     _selected[i] = [];
                     if (self.deepQuery([series[i], option], 'calculable')) {
                         pieCase = {
-                            shape : radius[0] <= 10 ? 'circle' : 'ring',
-                            zlevel : _zlevelBase,
-                            hoverable : false,
-                            style : {
-                                x : center[0],          // 圆心横坐标
-                                y : center[1],          // 圆心纵坐标
+                            shape: radius[0] <= 10 ? 'circle' : 'ring',
+                            zlevel: _zlevelCurrent,
+                            hoverable: false,
+                            style: {
+                                x: center[0],          // 圆心横坐标
+                                y: center[1],          // 圆心纵坐标
                                 // 圆环内外半径
-                                r0 : radius[0] <= 10 ? 0 : radius[0] - 10,
-                                r : radius[1] + 10,
-                                brushType : 'stroke',
+                                r0: radius[0] <= 10 ? 0 : radius[0] - 10,
+                                r: radius[1] + 10,
+                                brushType: 'stroke',
                                 lineWidth: 1,
-                                strokeColor : series[i].calculableHolderColor
+                                strokeColor: series[i].calculableHolderColor
                                               || ecConfig.calculableHolderColor
                             }
                         };
@@ -116,7 +117,7 @@ define(function(require) {
             // 计算需要显示的个数和总值
             for (var i = 0, l = data.length; i < l; i++) {
                 itemName = data[i].name;
-                if (legend){
+                if (legend) {
                     self.selectedMap[itemName] = legend.isSelected(itemName);
                 } else {
                     self.selectedMap[itemName] = true;
@@ -140,7 +141,7 @@ define(function(require) {
             var startAngle = serie.startAngle.toFixed(2) - 0;
             var endAngle;
             var minAngle = serie.minAngle || 0.01; // #bugfixed
-            var totalAngle = 360 - (minAngle * totalSelected) 
+            var totalAngle = 360 - (minAngle * totalSelected)
                                  - 0.01 * totalSelectedValue0;
             var defaultColor;
             var roseType = serie.roseType;
@@ -148,7 +149,7 @@ define(function(require) {
             var r0;     // 扇形内半径
             var r1;     // 扇形外半径
 
-            for (var i = 0, l = data.length; i < l; i++){
+            for (var i = 0, l = data.length; i < l; i++) {
                 itemName = data[i].name;
                 if (!self.selectedMap[itemName] || isNaN(data[i].value)) {
                     continue;
@@ -177,29 +178,29 @@ define(function(require) {
                 }
                 endAngle = endAngle.toFixed(2) - 0;
                 percent = (percent * 100).toFixed(2);
-                
+
                 radius = self.parseRadius(zr, serie.radius);
                 r0 = +radius[0];
                 r1 = +radius[1];
-                
+
                 if (roseType == 'radius') {
-                    r1 = data[i].value / maxValue * (r1 - r0) * 0.8 
+                    r1 = data[i].value / maxValue * (r1 - r0) * 0.8
                          + (r1 - r0) * 0.2
                          + r0;
                 }
                 else if (roseType == 'area') {
                     r1 = Math.sqrt(data[i].value / maxValue) * (r1 - r0) + r0;
                 }
-                
+
                 if (clockWise) {
                     var temp;
                     temp = startAngle;
                     startAngle = endAngle;
-                    endAngle = temp; 
+                    endAngle = temp;
                 }
-                
+
                 // 当前小角度需要检查前一个是否也是小角度，如果是得调整长度，不能完全避免，但能大大降低覆盖概率
-                if (i > 0 
+                if (i > 0
                     && percent < 4       // 约15度
                     && lastPercent < 4
                     && _needLabel(serie, data[i], false)
@@ -213,7 +214,7 @@ define(function(require) {
                 else {
                     lastAddRadius = 0;
                 }
-                
+
                 _buildItem(
                     seriesIndex, i, percent, lastAddRadius, // 相邻最小角度优化
                     data[i].selected,
@@ -300,7 +301,7 @@ define(function(require) {
             ) || {};
             var normalColor = self.getItemStyleColor(normal.color, seriesIndex, dataIndex, data)
                               || defaultColor;
-            
+
             var emphasisColor = self.getItemStyleColor(emphasis.color, seriesIndex, dataIndex, data)
                 || (typeof normalColor == 'string'
                     ? zrColor.lift(normalColor, -0.2)
@@ -308,34 +309,34 @@ define(function(require) {
                 );
 
             var sector = {
-                shape : 'sector',             // 扇形
-                zlevel : _zlevelBase,
-                clickable : true,
-                style : {
-                    x : center[0],          // 圆心横坐标
-                    y : center[1],          // 圆心纵坐标
-                    r0 : r0,         // 圆环内半径
-                    r : r1,          // 圆环外半径
-                    startAngle : startAngle,
-                    endAngle : endAngle,
-                    brushType : 'both',
-                    color : normalColor,
-                    lineWidth : normal.borderWidth,
-                    strokeColor : normal.borderColor,
+                shape: 'sector',             // 扇形
+                zlevel: _zlevelCurrent,
+                clickable: true,
+                style: {
+                    x: center[0],          // 圆心横坐标
+                    y: center[1],          // 圆心纵坐标
+                    r0: r0,         // 圆环内半径
+                    r: r1,          // 圆环外半径
+                    startAngle: startAngle,
+                    endAngle: endAngle,
+                    brushType: 'both',
+                    color: normalColor,
+                    lineWidth: normal.borderWidth,
+                    strokeColor: normal.borderColor,
                     lineJoin: 'round'
                 },
-                highlightStyle : {
-                    color : emphasisColor,
-                    lineWidth : emphasis.borderWidth,
-                    strokeColor : emphasis.borderColor,
+                highlightStyle: {
+                    color: emphasisColor,
+                    lineWidth: emphasis.borderWidth,
+                    strokeColor: emphasis.borderColor,
                     lineJoin: 'round'
                 },
-                _seriesIndex : seriesIndex, 
-                _dataIndex : dataIndex
+                _seriesIndex: seriesIndex,
+                _dataIndex: dataIndex
             };
-            
+
             if (isSelected) {
-                var midAngle = 
+                var midAngle =
                     ((sector.style.startAngle + sector.style.endAngle) / 2)
                     .toFixed(2) - 0;
                 sector.style._hasSelected = true;
@@ -344,18 +345,18 @@ define(function(require) {
                 var offset = self.query(serie, 'selectedOffset');
                 sector.style.x += zrMath.cos(midAngle, true) * offset;
                 sector.style.y -= zrMath.sin(midAngle, true) * offset;
-                
+
                 _selected[seriesIndex][dataIndex] = true;
             }
             else {
                 _selected[seriesIndex][dataIndex] = false;
             }
-            
-            
+
+
             if (_selectedMode) {
                 sector.onclick = self.shapeHandler.onclick;
             }
-            
+
             if (self.deepQuery([data, serie, option], 'calculable')) {
                 self.setCalculable(sector);
                 sector.draggable = true;
@@ -380,12 +381,12 @@ define(function(require) {
         ) {
             var serie = series[seriesIndex];
             var data = serie.data[dataIndex];
-            
+
             // 特定状态下是否需要显示文本标签
             if (!_needLabel(serie, data, isEmphasis)) {
                 return;
             }
-            
+
             var status = isEmphasis ? 'emphasis' : 'normal';
 
             // serie里有默认配置，放心大胆的用！
@@ -393,8 +394,8 @@ define(function(require) {
                     zrUtil.clone(data.itemStyle) || {},
                     serie.itemStyle,
                     {
-                        'overwrite' : false,
-                        'recursive' : true
+                        'overwrite': false,
+                        'recursive': true
                     }
                 );
             // label配置
@@ -410,7 +411,7 @@ define(function(require) {
             var radius = self.parseRadius(zr, serie.radius);  // 标签位置半径
             var textAlign;
             var textBaseline = 'middle';
-            labelControl.position = labelControl.position 
+            labelControl.position = labelControl.position
                                     || itemStyle.normal.label.position;
             if (labelControl.position == 'center') {
                 // center显示
@@ -419,7 +420,7 @@ define(function(require) {
                 y = centerY;
                 textAlign = 'center';
             }
-            else if (labelControl.position == 'inner'){
+            else if (labelControl.position == 'inner') {
                 // 内部显示
                 radius = (radius[0] + radius[1]) / 2 + lastAddRadius;
                 x = Math.round(
@@ -430,7 +431,7 @@ define(function(require) {
                 );
                 defaultColor = '#fff';
                 textAlign = 'center';
-                
+
             }
             else {
                 // 外部显示，默认 labelControl.position == 'outer')
@@ -443,7 +444,7 @@ define(function(require) {
                 textAlign = (midAngle >= 90 && midAngle <= 270)
                             ? 'right' : 'left';
             }
-            
+
             if (labelControl.position != 'center'
                 && labelControl.position != 'inner'
             ) {
@@ -451,27 +452,27 @@ define(function(require) {
             }
             data.__labelX = x - (textAlign == 'left' ? 5 : -5);
             data.__labelY = y;
-            
+
             return {
-                shape : 'text',
-                zlevel : _zlevelBase + 1,
-                hoverable : false,
-                style : {
-                    x : x,
-                    y : y,
-                    color : textStyle.color || defaultColor,
-                    text : _getLabelText(
+                shape: 'text',
+                zlevel: _zlevelCurrent + 1,
+                hoverable: false,
+                style: {
+                    x: x,
+                    y: y,
+                    color: textStyle.color || defaultColor,
+                    text: _getLabelText(
                         seriesIndex, dataIndex, percent, status
                     ),
-                    textAlign : textStyle.align || textAlign,
-                    textBaseline : textStyle.baseline || textBaseline,
-                    textFont : self.getFont(textStyle)
+                    textAlign: textStyle.align || textAlign,
+                    textBaseline: textStyle.baseline || textBaseline,
+                    textFont: self.getFont(textStyle)
                 },
-                highlightStyle : {
-                    brushType : 'fill'
+                highlightStyle: {
+                    brushType: 'fill'
                 },
-                _seriesIndex : seriesIndex, 
-                _dataIndex : dataIndex
+                _seriesIndex: seriesIndex,
+                _dataIndex: dataIndex
             };
         }
 
@@ -485,7 +486,7 @@ define(function(require) {
                 [data, serie],
                 'itemStyle.' + status + '.label.formatter'
             );
-            
+
             if (formatter) {
                 if (typeof formatter == 'function') {
                     return formatter(
@@ -496,15 +497,15 @@ define(function(require) {
                     );
                 }
                 else if (typeof formatter == 'string') {
-                    formatter = formatter.replace('{a}','{a0}')
-                                         .replace('{b}','{b0}')
-                                         .replace('{c}','{c0}')
-                                         .replace('{d}','{d0}');
+                    formatter = formatter.replace('{a}', '{a0}')
+                                         .replace('{b}', '{b0}')
+                                         .replace('{c}', '{c0}')
+                                         .replace('{d}', '{d0}');
                     formatter = formatter.replace('{a0}', serie.name)
                                          .replace('{b0}', data.name)
                                          .replace('{c0}', data.value)
                                          .replace('{d0}', percent);
-    
+
                     return formatter;
                 }
             }
@@ -512,7 +513,7 @@ define(function(require) {
                 return data.name;
             }
         }
-        
+
         /**
          * 需要显示则会有返回构建好的shape，否则返回undefined
          */
@@ -534,8 +535,8 @@ define(function(require) {
                         zrUtil.clone(data.itemStyle) || {},
                         serie.itemStyle,
                         {
-                            'overwrite' : false,
-                            'recursive' : true
+                            'overwrite': false,
+                            'recursive': true
                         }
                     );
                 // labelLine配置
@@ -548,7 +549,7 @@ define(function(require) {
                 // 视觉引导线起点半径
                 var midRadius = r1;
                 // 视觉引导线终点半径
-                var maxRadius = self.parseRadius(zr, serie.radius)[1] 
+                var maxRadius = self.parseRadius(zr, serie.radius)[1]
                                 - (-labelLineControl.length)
                                 + lastAddRadius;
                 var midAngle = ((endAngle + startAngle) / 2) % 360; // 角度中值
@@ -556,11 +557,11 @@ define(function(require) {
                 var sinValue = zrMath.sin(midAngle, true);
                 // 三角函数缓存已在zrender/tool/math中做了
                 return {
-                    shape : 'brokenLine',
-                    zlevel : _zlevelBase + 1,
-                    hoverable : false,
-                    style : {
-                        pointList : [
+                    shape: 'brokenLine',
+                    zlevel: _zlevelCurrent + 1,
+                    hoverable: false,
+                    style: {
+                        pointList: [
                             [
                                 centerX + midRadius * cosValue,
                                 centerY - midRadius * sinValue
@@ -578,12 +579,12 @@ define(function(require) {
                         //yStart : centerY - midRadius * sinValue,
                         //xEnd : centerX + maxRadius * cosValue,
                         //yEnd : centerY - maxRadius * sinValue,
-                        strokeColor : lineStyle.color || defaultColor,
-                        lineType : lineStyle.type,
-                        lineWidth : lineStyle.width
+                        strokeColor: lineStyle.color || defaultColor,
+                        lineType: lineStyle.type,
+                        lineWidth: lineStyle.width
                     },
-                    _seriesIndex : seriesIndex, 
-                    _dataIndex : dataIndex
+                    _seriesIndex: seriesIndex,
+                    _dataIndex: dataIndex
                 };
             }
             else {
@@ -617,10 +618,10 @@ define(function(require) {
                 [data, serie],
                 'itemStyle.'
                 + (isEmphasis ? 'emphasis' : 'normal')
-                +'.labelLine.show'
+                + '.labelLine.show'
             );
         }
-        
+
         /**
          * 参数修正&默认值赋值，重载基类方法
          * @param {Object} opt 参数
@@ -632,8 +633,8 @@ define(function(require) {
                       opt || {},
                       ecConfig.pie,
                       {
-                          'overwrite' : false,
-                          'recursive' : true
+                          'overwrite': false,
+                          'recursive': true
                       }
                   );
 
@@ -642,16 +643,16 @@ define(function(require) {
                 opt.itemStyle.normal.label.textStyle || {},
                 ecConfig.textStyle,
                 {
-                    'overwrite' : false,
-                    'recursive' : true
+                    'overwrite': false,
+                    'recursive': true
                 }
             );
             opt.itemStyle.emphasis.label.textStyle = _merge(
                 opt.itemStyle.emphasis.label.textStyle || {},
                 ecConfig.textStyle,
                 {
-                    'overwrite' : false,
-                    'recursive' : true
+                    'overwrite': false,
+                    'recursive': true
                 }
             );
 
@@ -679,7 +680,7 @@ define(function(require) {
             self.clear();
             _buildShape();
         }
-        
+
         /**
          * 动态数据增加动画 
          * 心跳效果
@@ -715,7 +716,7 @@ define(function(require) {
             }
         }
          */
-        
+
         /**
          * 动态数据增加动画 
          */
@@ -724,14 +725,14 @@ define(function(require) {
             for (var i = 0, l = params.length; i < l; i++) {
                 aniMap[params[i][0]] = params[i];
             }
-            
+
             // 构建新的饼图匹配差异做动画
             var sectorMap = {};
             var textMap = {};
             var lineMap = {};
             var backupShapeList = zrUtil.clone(self.shapeList);
             self.shapeList = [];
-            
+
             var seriesIndex;
             var isHead;
             var dataGrow;
@@ -746,8 +747,8 @@ define(function(require) {
                     if (isHead) {
                         if (!dataGrow) {
                             sectorMap[
-                                seriesIndex 
-                                + '_' 
+                                seriesIndex
+                                + '_'
                                 + series[seriesIndex].data.length
                             ] = 'delete';
                         }
@@ -773,13 +774,13 @@ define(function(require) {
                 key = seriesIndex + '_' + dataIndex;
                 // map映射让n*n变n
                 switch (self.shapeList[i].shape) {
-                    case 'sector' :
+                    case 'sector':
                         sectorMap[key] = self.shapeList[i];
                         break;
-                    case 'text' :
+                    case 'text':
                         textMap[key] = self.shapeList[i];
                         break;
-                    case 'line' :
+                    case 'line':
                         lineMap[key] = self.shapeList[i];
                         break;
                 }
@@ -803,9 +804,9 @@ define(function(require) {
                                 .when(
                                     400,
                                     {
-                                        startAngle : 
+                                        startAngle:
                                             targeSector.style.startAngle,
-                                        endAngle : 
+                                        endAngle:
                                             targeSector.style.endAngle
                                     }
                                 )
@@ -818,13 +819,13 @@ define(function(require) {
                                     400,
                                     deltaIdxMap[seriesIndex] < 0
                                     ? {
-                                        endAngle : 
+                                        endAngle:
                                             backupShapeList[i].style.startAngle
-                                      }
+                                    }
                                     : {
-                                        startAngle :
+                                        startAngle:
                                             backupShapeList[i].style.endAngle
-                                      }
+                                    }
                                 )
                                 .start();
                         }
@@ -845,8 +846,8 @@ define(function(require) {
                                         .when(
                                             400,
                                             {
-                                                x :targeSector.style.x,
-                                                y :targeSector.style.y
+                                                x: targeSector.style.x,
+                                                y: targeSector.style.y
                                             }
                                         )
                                         .start();
@@ -857,16 +858,16 @@ define(function(require) {
                                         .when(
                                             400,
                                             {
-                                                xStart:targeSector.style.xStart,
-                                                yStart:targeSector.style.yStart,
-                                                xEnd : targeSector.style.xEnd,
-                                                yEnd : targeSector.style.yEnd
+                                                xStart: targeSector.style.xStart,
+                                                yStart: targeSector.style.yStart,
+                                                xEnd: targeSector.style.xEnd,
+                                                yEnd: targeSector.style.yEnd
                                             }
                                         )
                                         .start();
                                     break;
                             }
-                            
+
                         }
                     }
                 }
@@ -898,12 +899,12 @@ define(function(require) {
                     r = self.shapeList[i].style.r;
 
                     zr.modShape(
-                        self.shapeList[i].id, 
+                        self.shapeList[i].id,
                         {
-                            rotation : [Math.PI*2, x, y],
-                            style : {
-                                r0 : 0,
-                                r : 0
+                            rotation: [Math.PI * 2, x, y],
+                            style: {
+                                r0: 0,
+                                r: 0
                             }
                         },
                         true
@@ -913,44 +914,44 @@ define(function(require) {
                     dataIndex = ecData.get(self.shapeList[i], 'dataIndex');
                     zr.animate(self.shapeList[i].id, 'style')
                         .when(
-                            (self.query(serie,'animationDuration')
+                            (self.query(serie, 'animationDuration')
                             || duration)
                             + dataIndex * 10,
                             {
-                                r0 : r0,
-                                r : r
+                                r0: r0,
+                                r: r
                             }
                         )
                         .start('QuinticOut');
                     zr.animate(self.shapeList[i].id, '')
                         .when(
-                            (self.query(serie,'animationDuration')
+                            (self.query(serie, 'animationDuration')
                             || duration)
                             + dataIndex * 100,
-                            {rotation : [0, x, y]}
+                            { rotation: [0, x, y] }
                         )
                         .start(
                             self.query(serie, 'animationEasing') || easing
                         );
                 }
-                else if (!self.shapeList[i]._mark){
+                else if (!self.shapeList[i]._mark) {
                     dataIndex = self.shapeList[i]._dataIndex;
                     zr.modShape(
-                        self.shapeList[i].id, 
+                        self.shapeList[i].id,
                         {
-                            scale : [0, 0, x, y]
+                            scale: [0, 0, x, y]
                         },
                         true
                     );
                     zr.animate(self.shapeList[i].id, '')
                         .when(
                             duration + dataIndex * 100,
-                            {scale : [1, 1, x, y]}
+                            { scale: [1, 1, x, y] }
                         )
                         .start('QuinticOut');
                 }
             }
-            
+
             self.animationMark(duration, easing);
         }
 
@@ -971,7 +972,7 @@ define(function(require) {
                     dataIndex = ecData.get(target, 'dataIndex');
                     // 当前点击的
                     if (!style._hasSelected) {
-                        var midAngle = 
+                        var midAngle =
                             ((style.startAngle + style.endAngle) / 2)
                             .toFixed(2) - 0;
                         target.style._hasSelected = true;
@@ -982,9 +983,9 @@ define(function(require) {
                             series[seriesIndex],
                             'selectedOffset'
                         );
-                        target.style.x += zrMath.cos(midAngle, true) 
+                        target.style.x += zrMath.cos(midAngle, true)
                                           * offset;
-                        target.style.y -= zrMath.sin(midAngle, true) 
+                        target.style.y -= zrMath.sin(midAngle, true)
                                           * offset;
                     }
                     else {
@@ -994,7 +995,7 @@ define(function(require) {
                         target.style._hasSelected = false;
                         _selected[seriesIndex][dataIndex] = false;
                     }
-                    
+
                     zr.modShape(target.id, target);
                 }
                 else if (self.shapeList[i].style._hasSelected
@@ -1012,11 +1013,11 @@ define(function(require) {
                     );
                 }
             }
-            
+
             messageCenter.dispatch(
                 ecConfig.EVENT.PIE_SELECTED,
                 param.event,
-                {selected : _selected}
+                { selected: _selected }
             );
             zr.refresh();
         }
@@ -1041,8 +1042,8 @@ define(function(require) {
             if (dataIndex == -1) {
                 // 落到pieCase上，数据被拖拽进某个饼图，增加数据
                 data = {
-                    value : ecData.get(dragged, 'value'),
-                    name : ecData.get(dragged, 'name')
+                    value: ecData.get(dragged, 'value'),
+                    name: ecData.get(dragged, 'name')
                 };
 
                 // 修饼图数值不为负值
@@ -1116,7 +1117,7 @@ define(function(require) {
         /**
          * 输出动态视觉引导线
          */
-        self.shapeHandler.onmouseover = function(param) {
+        self.shapeHandler.onmouseover = function (param) {
             var shape = param.target;
             var seriesIndex = ecData.get(shape, 'seriesIndex');
             var dataIndex = ecData.get(shape, 'dataIndex');
@@ -1126,7 +1127,7 @@ define(function(require) {
             var startAngle = shape.style.startAngle;
             var endAngle = shape.style.endAngle;
             var defaultColor = shape.highlightStyle.color;
-            
+
             // 文本标签，需要显示则会有返回
             var label = _getLabel(
                     seriesIndex, dataIndex, percent, lastAddRadius,
@@ -1136,7 +1137,7 @@ define(function(require) {
             if (label) {
                 zr.addHoverShape(label);
             }
-            
+
             // 文本标签视觉引导线，需要显示则会有返回
             var labelLine = _getLabelLine(
                     seriesIndex, dataIndex, lastAddRadius,
@@ -1151,7 +1152,7 @@ define(function(require) {
 
         self.reformOption = reformOption;   // 重载基类方法
         self.animation = animation;
-        
+
         // 接口方法
         self.init = init;
         self.refresh = refresh;
@@ -1165,6 +1166,6 @@ define(function(require) {
 
     // 图表注册
     require('../chart').define('pie', Pie);
-    
+
     return Pie;
 });

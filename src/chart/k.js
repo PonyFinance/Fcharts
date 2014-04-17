@@ -28,7 +28,7 @@ define(function(require) {
 
         var series;                 // 共享数据源，不要修改跟自己无关的项
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         function _buildShape() {
             self.selectedMap = {};
@@ -43,6 +43,7 @@ define(function(require) {
                 if (series[i].type == ecConfig.CHART_TYPE_K) {
                     series[i] = self.reformOption(series[i]);
                     xAxis = component.xAxis.getAxis(series[i].xAxisIndex);
+                    _zlevelCurrent = series[i].zindex || _zlevelBase;
                     if (xAxis.type == ecConfig.COMPONENT_TYPE_AXIS_CATEGORY
                     ) {
                         _position2sIndexMap[xAxis.getPosition()].push(i);
@@ -353,7 +354,7 @@ define(function(require) {
         ) {
             var itemShape = {
                 shape : 'candle',
-                zlevel : _zlevelBase,
+                zlevel: _zlevelCurrent,
                 clickable: true,
                 style : {
                     x : x,

@@ -28,8 +28,8 @@ define(function (require) {
         self.type = ecConfig.COMPONENT_TYPE_TOOLBOX;
         
         var _canvasSupported = require('zrender/tool/env').canvasSupported;
-        
-        var _zlevelBase = self.getZlevelBase();
+
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
         var _magicType = {};
         var _magicMap;
         var _isSilence = false;
@@ -167,7 +167,7 @@ define(function (require) {
                 // 图形
                 itemShape = {
                     shape : 'icon',
-                    zlevel : _zlevelBase,
+                    zlevel : _zlevelCurrent,
                     style : {
                         x : lastX,
                         y : lastY,
@@ -182,7 +182,7 @@ define(function (require) {
                         lineWidth : 2,
                         text : toolboxOption.showTitle 
                                ? _featureTitle[_iconList[i]]
-                               : undefined,
+                               : false,
                         textFont : textFont,
                         textPosition : textPosition,
                         strokeColor : _featureColor[_iconList[i]] || color[i % color.length]
@@ -289,7 +289,7 @@ define(function (require) {
 
             self.shapeList.push({
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 hoverable :false,
                 style : {
                     x : _itemGroupLocation.x - pLeft,
@@ -459,7 +459,7 @@ define(function (require) {
             _zoomShape = {
                 shape : 'rectangle',
                 id : zr.newShapeId('zoom'),
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 style : {
                     x : x,
                     y : y,
@@ -521,7 +521,7 @@ define(function (require) {
                 _markShape = {
                     shape : 'line',
                     id : zr.newShapeId('mark'),
-                    zlevel : _zlevelBase,
+                    zlevel : _zlevelCurrent,
                     style : {
                         xStart : x,
                         yStart : y,
@@ -846,6 +846,7 @@ define(function (require) {
             if (self.query(newOption, 'toolbox.show')
                 && self.query(newOption, 'toolbox.feature.magicType.show')
             ) {
+                _zlevelCurrent = newOption.toolbox.zindex || _zlevelBase;
                 var magicType = newOption.toolbox.feature.magicType.type;
                 var len = magicType.length;
                 _magicMap = {};     // 标识可控类型
@@ -1018,6 +1019,7 @@ define(function (require) {
                 newOption.toolbox.padding
             );
             option = newOption;
+            _zlevelCurrent = option.toolbox.zindex || _zlevelBase;
             component = newComponent;
 
             self.shapeList = [];
@@ -1030,6 +1032,7 @@ define(function (require) {
         }
 
         function resize() {
+            _zlevelCurrent = option.toolbox.zindex || _zlevelBase;
             _resetMark();
             self.clear();
             if (option && option.toolbox && option.toolbox.show) {
@@ -1071,6 +1074,7 @@ define(function (require) {
                     newOption.toolbox.padding
                 );
                 option = newOption;
+                _zlevelCurrent = option.toolbox.zindex || _zlevelBase;
             }
         }
 

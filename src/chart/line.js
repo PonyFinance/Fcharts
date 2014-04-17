@@ -28,7 +28,7 @@ define(function(require) {
 
         var series;                 // 共享数据源，不要修改跟自己无关的项
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var finalPLMap = {}; // 完成的point list(PL)
         var _sIndex2ColorMap = {};  // series默认颜色索引，seriesIndex索引到color
@@ -61,6 +61,7 @@ define(function(require) {
                     yAxisIndex = series[i].yAxisIndex;
                     xAxis = component.xAxis.getAxis(xAxisIndex);
                     yAxis = component.yAxis.getAxis(yAxisIndex);
+                    _zlevelCurrent = series[i].zindex || _zlevelBase;
                     if (xAxis.type == ecConfig.COMPONENT_TYPE_AXIS_CATEGORY
                     ) {
                         _position2sIndexMap[xAxis.getPosition()].push(i);
@@ -254,14 +255,6 @@ define(function(require) {
                                   : data)
                                 : '-';
                         curPLMap[seriesIndex] = curPLMap[seriesIndex] || [];
-                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex] 
-                                                || {
-                                                    min : Number.POSITIVE_INFINITY,
-                                                    max : Number.NEGATIVE_INFINITY,
-                                                    sum : 0,
-                                                    counter : 0,
-                                                    average : 0
-                                                };
                         if (value == '-') {
                             // 空数据则把正在记录的curPLMap添加到finalPLMap中
                             if (curPLMap[seriesIndex].length > 0) {
@@ -295,6 +288,14 @@ define(function(require) {
                             [x, y, i, categoryAxis.getNameByIndex(i), x, baseYP]
                         );
                         
+                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex] 
+                                                || {
+                                                    min : Number.POSITIVE_INFINITY,
+                                                    max : Number.NEGATIVE_INFINITY,
+                                                    sum : 0,
+                                                    counter : 0,
+                                                    average : 0
+                                                };
                         if (xMarkMap[seriesIndex].min > value) {
                             xMarkMap[seriesIndex].min = value;
                             xMarkMap[seriesIndex].minY = y;
@@ -357,18 +358,16 @@ define(function(require) {
             for (var j = 0, k = locationMap.length; j < k; j++) {
                 for (var m = 0, n = locationMap[j].length; m < n; m++) {
                     seriesIndex = locationMap[j][m];
-                    if (xMarkMap[seriesIndex].counter > 0) {
-                        xMarkMap[seriesIndex].average = 
-                            (xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter).toFixed(2) 
-                            - 0;
-                    }
+                    xMarkMap[seriesIndex].average = 
+                        (xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter).toFixed(2) - 0;
+                        
                     y = component.yAxis.getAxis(series[seriesIndex].yAxisIndex || 0)
                         .getCoord(xMarkMap[seriesIndex].average);
+                        
                     xMarkMap[seriesIndex].averageLine = [
                         [component.grid.getX(), y],
                         [component.grid.getXend(), y]
                     ];
-                    
                     xMarkMap[seriesIndex].minLine = [
                         [component.grid.getX(), xMarkMap[seriesIndex].minY],
                         [component.grid.getXend(), xMarkMap[seriesIndex].minY]
@@ -426,14 +425,6 @@ define(function(require) {
                                   : data)
                                 : '-';
                         curPLMap[seriesIndex] = curPLMap[seriesIndex] || [];
-                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex] 
-                                                || {
-                                                    min : Number.POSITIVE_INFINITY,
-                                                    max : Number.NEGATIVE_INFINITY,
-                                                    sum : 0,
-                                                    counter : 0,
-                                                    average : 0
-                                                };
                         if (value == '-') {
                             // 空数据则把正在记录的curPLMap添加到finalPLMap中
                             if (curPLMap[seriesIndex].length > 0) {
@@ -467,6 +458,14 @@ define(function(require) {
                             [x, y, i, categoryAxis.getNameByIndex(i), baseXP, y]
                         );
                         
+                        xMarkMap[seriesIndex] = xMarkMap[seriesIndex] 
+                                                || {
+                                                    min : Number.POSITIVE_INFINITY,
+                                                    max : Number.NEGATIVE_INFINITY,
+                                                    sum : 0,
+                                                    counter : 0,
+                                                    average : 0
+                                                };
                         if (xMarkMap[seriesIndex].min > value) {
                             xMarkMap[seriesIndex].min = value;
                             xMarkMap[seriesIndex].minX = x;
@@ -529,12 +528,9 @@ define(function(require) {
             for (var j = 0, k = locationMap.length; j < k; j++) {
                 for (var m = 0, n = locationMap[j].length; m < n; m++) {
                     seriesIndex = locationMap[j][m];
-                    if (xMarkMap[seriesIndex].counter > 0) {
-                        xMarkMap[seriesIndex].average = 
-                            (xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter).toFixed(2) 
-                            - 0;
-                    }
-                    
+                    xMarkMap[seriesIndex].average = 
+                        xMarkMap[seriesIndex].sum / xMarkMap[seriesIndex].counter;
+                        
                     x = component.xAxis.getAxis(series[seriesIndex].xAxisIndex || 0)
                         .getCoord(xMarkMap[seriesIndex].average);
                         
@@ -583,6 +579,7 @@ define(function(require) {
                 seriesIndex--
             ) {
                 serie = series[seriesIndex];
+                _zlevelCurrent = serie.zindex || _zlevelBase;
                 seriesPL = pointList[seriesIndex];
                 if (serie.type == self.type && typeof seriesPL != 'undefined') {
                     defaultColor = _sIndex2ColorMap[seriesIndex];
@@ -639,7 +636,7 @@ define(function(require) {
                         // 折线图
                         self.shapeList.push({
                             shape : 'brokenLine',
-                            zlevel : _zlevelBase,
+                            zlevel: _zlevelCurrent,
                             style : {
                                 miterLimit: lineWidth,
                                 pointList : singlePL,
@@ -675,7 +672,7 @@ define(function(require) {
                         if (isFill) {
                             self.shapeList.push({
                                 shape : 'halfSmoothPolygon',
-                                zlevel : _zlevelBase,
+                                zlevel: _zlevelCurrent,
                                 style : {
                                     miterLimit: lineWidth,
                                     pointList : singlePL.concat([
@@ -751,6 +748,8 @@ define(function(require) {
          */
         function _getSymbol(seriesIndex, dataIndex, name, x, y, orient) {
             var serie = series[seriesIndex];
+            // !安全起见
+            _zlevelCurrent = serie.zindex || _zlevelBase;
             var data = serie.data[dataIndex];
             
             var itemShape = self.getSymbolShape(
@@ -761,7 +760,9 @@ define(function(require) {
                 '#fff',
                 orient == 'vertical' ? 'horizontal' : 'vertical' // 翻转
             );
-            itemShape.zlevel = _zlevelBase + 1;
+            // !此处原来是itemShape.zlevel = _zlevelCurrent + 1;
+            // 但容易覆盖其他层，暂时如此修改
+            itemShape.zlevel = _zlevelCurrent;
             
             if (self.deepQuery([data, serie, option], 'calculable')) {
                 self.setCalculable(itemShape);

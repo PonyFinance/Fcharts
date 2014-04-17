@@ -25,7 +25,7 @@ define(function (require) {
         self.type = ecConfig.COMPONENT_TYPE_LEGEND;
 
         var legendOption;                       // 图例选项，共享数据源
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var _itemGroupLocation = {};    // 图例元素组的位置参数，通过计算所得x, y, width, height
 
@@ -156,7 +156,7 @@ define(function (require) {
                 // 文字
                 textShape = {
                     shape : 'text',
-                    zlevel : _zlevelBase,
+                    zlevel : _zlevelCurrent,
                     style : {
                         x : lastX + itemWidth + 5,
                         y : lastY,
@@ -266,7 +266,7 @@ define(function (require) {
 
             self.shapeList.push({
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 hoverable :false,
                 style : {
                     x : _itemGroupLocation.x - pLeft,
@@ -499,7 +499,7 @@ define(function (require) {
                                    ? zrColor.lift(color, -0.3) : color;
             var itemShape = {
                 shape : 'icon',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 style : {
                     iconType : 'legendicon' 
                                + (itemType != ecConfig.CHART_TYPE_CHORD   // 和弦复用饼图
@@ -578,6 +578,7 @@ define(function (require) {
             );
 
             legendOption = option.legend;
+            _zlevelCurrent = legendOption.zindex || _zlevelBase;
 
             self.clear();
 
@@ -638,6 +639,7 @@ define(function (require) {
             if (newOption) {
                 option = newOption;
                 option.legend = self.reformOption(option.legend);
+                _zlevelCurrent = option.legend.zindex || _zlevelBase;
                 // 补全padding属性
                 option.legend.padding = self.reformCssArray(
                     option.legend.padding

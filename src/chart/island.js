@@ -78,6 +78,7 @@ define(function (require) {
         function render(newOption) {
             refresh(newOption);
 
+            // 按照顺序添加，底层添加zindex属性
             for (var i = 0, l = self.shapeList.length; i < l; i++) {
                 zr.addShape(self.shapeList[i]);
             }

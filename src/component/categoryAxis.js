@@ -25,7 +25,7 @@ define(function (require) {
 
         var grid = component.grid;
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
         var _interval;                              // 标签显示的挑选间隔
         var _labelData;
 
@@ -170,7 +170,7 @@ define(function (require) {
             var halfLineWidth = lineWidth / 2;
             var axShape = {
                 shape : 'line',
-                zlevel : _zlevelBase + 1,
+                zlevel : _zlevelCurrent + 1,
                 hoverable : false
             };
             switch (option.position) {
@@ -274,7 +274,7 @@ define(function (require) {
                     );
                     axShape = {
                         shape : 'line',
-                        zlevel : _zlevelBase,
+                        zlevel : _zlevelCurrent,
                         hoverable : false,
                         style : {
                             xStart : x,
@@ -302,7 +302,7 @@ define(function (require) {
                     );
                     axShape = {
                         shape : 'line',
-                        zlevel : _zlevelBase,
+                        zlevel : _zlevelCurrent,
                         hoverable : false,
                         style : {
                             xStart : xPosition,
@@ -353,7 +353,7 @@ define(function (require) {
                     );
                     axShape = {
                         shape : 'text',
-                        zlevel : _zlevelBase,
+                        zlevel : _zlevelCurrent,
                         hoverable : false,
                         style : {
                             x : getCoordByIndex(i),
@@ -405,7 +405,7 @@ define(function (require) {
                     );
                     axShape = {
                         shape : 'text',
-                        zlevel : _zlevelBase,
+                        zlevel : _zlevelCurrent,
                         hoverable : false,
                         style : {
                             x : xPosition,
@@ -466,7 +466,7 @@ define(function (require) {
                     );
                     axShape = {
                         shape : 'line',
-                        zlevel : _zlevelBase,
+                        zlevel : _zlevelCurrent,
                         hoverable : false,
                         style : {
                             xStart : x,
@@ -495,7 +495,7 @@ define(function (require) {
                     );
                     axShape = {
                         shape : 'line',
-                        zlevel : _zlevelBase,
+                        zlevel : _zlevelCurrent,
                         hoverable : false,
                         style : {
                             xStart : sx,
@@ -520,7 +520,7 @@ define(function (require) {
                 // 非数组一律认为是单一颜色的字符串，单一颜色则用一个背景，颜色错误不负责啊！！！
                 axShape = {
                     shape : 'rectangle',
-                    zlevel : _zlevelBase,
+                    zlevel : _zlevelCurrent,
                     hoverable : false,
                     style : {
                         x : grid.getX(),
@@ -557,7 +557,7 @@ define(function (require) {
                                : grid.getXend();
                         axShape = {
                             shape : 'rectangle',
-                            zlevel : _zlevelBase,
+                            zlevel : _zlevelCurrent,
                             hoverable : false,
                             style : {
                                 x : lastX,
@@ -585,7 +585,7 @@ define(function (require) {
                                : grid.getY();
                         axShape = {
                             shape : 'rectangle',
-                            zlevel : _zlevelBase,
+                            zlevel : _zlevelCurrent,
                             hoverable : false,
                             style : {
                                 x : x,
@@ -614,6 +614,7 @@ define(function (require) {
                 return;
             }
             grid = newGrid;
+            _zlevelCurrent = newOption.zindex || _zlevelBase;
 
             refresh(newOption);
         }
@@ -641,6 +642,7 @@ define(function (require) {
                         'recursive' : true
                     }
                 );
+                _zlevelCurrent = option.zindex || _zlevelBase;
             }
             self.clear();
             _buildShape();

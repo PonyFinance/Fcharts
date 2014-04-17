@@ -20,7 +20,7 @@ define(function (require) {
         var self = this;
         self.type = ecConfig.COMPONENT_TYPE_DATAZOOM;
 
-        var _zlevelBase = self.getZlevelBase();
+        var _zlevelBase = self.getZlevelBase(), _zlevelCurrent = _zlevelBase;
 
         var zoomOption;
 
@@ -309,7 +309,7 @@ define(function (require) {
             // 背景
             self.shapeList.push({
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 hoverable :false,
                 style : {
                     x : _location.x,
@@ -358,8 +358,8 @@ define(function (require) {
             }
 
             var pointList = [];
-            var x = _location.width / (maxLength - (maxLength > 1 ? 1 : 0));
-            var y = _location.height / (maxLength - (maxLength > 1 ? 1 : 0));
+            var x = _location.width / maxLength;
+            var y = _location.height / maxLength;
             for (var i = 0, l = maxLength; i < l; i++) {
                 value = typeof data[i] != 'undefined'
                         ? (typeof data[i].value != 'undefined'
@@ -412,7 +412,7 @@ define(function (require) {
 
             self.shapeList.push({
                 shape : 'polygon',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 style : {
                     pointList : pointList,
                     color : zoomOption.dataBackgroundColor
@@ -427,7 +427,7 @@ define(function (require) {
         function _buildFiller() {
             _fillerShae = {
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 draggable : true,
                 ondrift : _ondrift,
                 ondragend : _ondragend,
@@ -487,7 +487,7 @@ define(function (require) {
             var zrUtil = require('zrender/tool/util');
             _startShape = {
                 shape : 'icon',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 draggable : true,
                 style : {
                     iconType: 'rectangle',
@@ -536,7 +536,7 @@ define(function (require) {
             var y = self.subPixelOptimize(_location.y, 1);
             _startFrameShape = {
                 shape : 'rectangle',
-                zlevel : _zlevelBase,
+                zlevel : _zlevelCurrent,
                 hoverable :false,
                 style : {
                     x : x,
@@ -1012,6 +1012,7 @@ define(function (require) {
             option.dataZoom = self.reformOption(option.dataZoom);
 
             zoomOption = option.dataZoom;
+            _zlevelCurrent = zoomOption.zindex || _zlevelBase;
 
             self.clear();
             
@@ -1038,7 +1039,7 @@ define(function (require) {
          */
         function resize() {
             self.clear();
-            
+
             // 自己show 或者 toolbox启用且dataZoom有效
             if (option.dataZoom.show
                 || (
